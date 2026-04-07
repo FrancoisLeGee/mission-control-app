@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Francois — Live Status</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #0a0e1a; font-family: 'Segoe UI', sans-serif; color: #c8d6e5; overflow: hidden; }
+
+.container { display: flex; height: 100vh; }
+
+/* Room */
+.room {
+    flex: 1; position: relative;
+    background: linear-gradient(180deg, #0f1a2e 0%, #0a1225 100%);
+    border-right: 1px solid rgba(23,104,172,0.2);
+    overflow: hidden;
+}
+
+/* Floor */
+.floor {
+    position: absolute; bottom: 0; width: 100%; height: 35%;
+    background: linear-gradient(180deg, #141e33 0%, #0d1525 100%);
+    border-top: 2px solid rgba(23,104,172,0.15);
+}
+.floor::before {
+    content: ''; position: absolute; top: 0; width: 100%; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(23,104,172,0.3), transparent);
+}
+
+/* Grid lines on floor */
+.grid-line { position: absolute; background: rgba(23,104,172,0.05); }
+.grid-h { width: 100%; height: 1px; }
+.grid-v { width: 1px; height: 100%; }
+
+/* Desk */
+.desk {
+    position: absolute; bottom: 38%; left: 50%; transform: translateX(-50%);
+    width: 280px; height: 60px;
+    background: linear-gradient(180deg, #1a2744 0%, #14203a 100%);
+    border: 1px solid rgba(23,104,172,0.3);
+    border-radius: 8px 8px 4px 4px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+}
+.desk-leg { position: absolute; bottom: -40px; width: 8px; height: 40px; background: #14203a; border-radius: 0 0 3px 3px; }
+.desk-leg.left { left: 20px; }
+.desk-leg.right { right: 20px; }
+
+/* Monitor */
+.monitor {
+    position: absolute; bottom: calc(38% + 65px); left: 50%; transform: translateX(-50%);
+    width: 160px; height: 100px;
+    background: #0a1628; border: 2px solid rgba(23,104,172,0.4);
+    border-radius: 8px;
+    box-shadow: 0 0 20px rgba(23,104,172,0.15);
+    overflow: hidden;
+}
+.monitor-screen {
+    width: 100%; height: 100%; padding: 8px;
+    font-family: 'Courier New', monospace; font-size: 7px;
+    color: #4ade80; line-height: 1.4;
+    animation: typing 3s steps(30) infinite;
+}
+.monitor-stand {
+    position: absolute; bottom: calc(38% + 55px); left: 50%; transform: translateX(-50%);
+    width: 12px; height: 12px; background: #14203a;
+}
+.monitor-base {
+    position: absolute; bottom: calc(38% + 48px); left: 50%; transform: translateX(-50%);
+    width: 50px; height: 6px; background: #14203a; border-radius: 3px;
+}
+
+/* Agent Character */
+.agent {
+    position: absolute; bottom: calc(38% + 10px); left: 50%; transform: translateX(-50%);
+    transition: all 1s ease;
+}
+.agent.working { left: 50%; }
+.agent.idle { left: 75%; bottom: 40%; }
+
+/* Head */
+.agent-head {
+    width: 32px; height: 32px; margin: 0 auto;
+    background: linear-gradient(180deg, #4a9fd9, #1768ac);
+    border-radius: 50%;
+    position: relative;
+    box-shadow: 0 0 15px rgba(23,104,172,0.3);
+}
+.agent-eye { position: absolute; width: 4px; height: 5px; background: #0a1628; border-radius: 50%; top: 12px; }
+.agent-eye.left { left: 8px; }
+.agent-eye.right { right: 8px; }
+.agent-eye.blink { animation: blink 4s ease infinite; }
+.agent-mouth { position: absolute; width: 8px; height: 3px; background: #0a1628; border-radius: 0 0 4px 4px; bottom: 7px; left: 50%; transform: translateX(-50%); }
+
+/* Body */
+.agent-body {
+    width: 28px; height: 35px; margin: 2px auto 0;
+    background: linear-gradient(180deg, #1768ac, #0b3d6b);
+    border-radius: 8px 8px 4px 4px;
+}
+.agent-arm {
+    position: absolute; width: 8px; height: 20px;
+    background: #1768ac; border-radius: 4px; top: 38px;
+}
+.agent-arm.left { left: -2px; transform: rotate(10deg); }
+.agent-arm.right { right: -2px; transform: rotate(-10deg); }
+.agent.working .agent-arm { animation: type-arms 0.5s ease infinite alternate; }
+
+/* Coffee mug (idle) */
+.coffee {
+    position: absolute; bottom: 40%; right: 22%;
+    width: 20px; height: 24px;
+    background: #2a3f5f; border-radius: 0 0 4px 4px;
+    border: 2px solid #3a5a8a;
+    opacity: 0; transition: opacity 0.5s;
+}
+.coffee::after {
+    content: '☕'; position: absolute; top: -16px; left: 50%; transform: translateX(-50%);
+    font-size: 14px;
+}
+.agent.idle ~ .coffee { opacity: 1; }
+
+/* Couch (idle area) */
+.couch {
+    position: absolute; bottom: 36%; right: 12%;
+    width: 100px; height: 40px;
+    background: linear-gradient(180deg, #1a2d4d, #142240);
+    border: 1px solid rgba(23,104,172,0.2);
+    border-radius: 10px 10px 5px 5px;
+}
+.couch-back {
+    position: absolute; top: -20px; width: 100%; height: 22px;
+    background: linear-gradient(180deg, #1e3355, #1a2d4d);
+    border: 1px solid rgba(23,104,172,0.2);
+    border-radius: 8px 8px 0 0;
+}
+.couch-arm-l, .couch-arm-r {
+    position: absolute; top: -10px; width: 15px; height: 52px;
+    background: #1a2d4d; border: 1px solid rgba(23,104,172,0.2);
+    border-radius: 6px;
+}
+.couch-arm-l { left: -8px; }
+.couch-arm-r { right: -8px; }
+
+/* Plant */
+.plant {
+    position: absolute; bottom: 36%; left: 8%;
+    font-size: 40px; filter: brightness(0.7);
+}
+
+/* Window */
+.window {
+    position: absolute; top: 15%; left: 10%; width: 120px; height: 80px;
+    background: linear-gradient(180deg, #0c1a33 0%, #0a1628 100%);
+    border: 2px solid rgba(23,104,172,0.25);
+    border-radius: 6px;
+    overflow: hidden;
+}
+.star { position: absolute; width: 2px; height: 2px; background: #fff; border-radius: 50%; animation: twinkle 3s ease infinite; }
+
+/* Status Panel */
+.panel {
+    width: 300px; padding: 24px;
+    background: #0d1525; border-left: 1px solid rgba(23,104,172,0.2);
+    overflow-y: auto;
+}
+.panel-title {
+    font-size: 1.2rem; font-weight: 700; letter-spacing: 3px;
+    background: linear-gradient(135deg, #4a9fd9, #1768ac);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    margin-bottom: 20px;
+}
+.status-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 8px; }
+.status-dot.online { background: #4ade80; box-shadow: 0 0 8px rgba(74,222,128,0.5); animation: pulse 2s infinite; }
+.status-dot.idle { background: #fbbf24; box-shadow: 0 0 8px rgba(251,191,36,0.5); }
+.status-dot.offline { background: #f87171; }
+
+.info-card {
+    background: rgba(23,104,172,0.08);
+    border: 1px solid rgba(23,104,172,0.15);
+    border-radius: 10px; padding: 14px; margin: 12px 0;
+}
+.info-label { font-size: 0.7rem; color: #4a6f8f; letter-spacing: 2px; text-transform: uppercase; }
+.info-value { font-size: 1rem; font-weight: 600; color: #e0f0ff; margin-top: 4px; }
+
+.activity-item {
+    padding: 8px 0; border-bottom: 1px solid rgba(23,104,172,0.1);
+    font-size: 0.8rem; color: #7ba3c4;
+}
+.activity-time { color: #4a6f8f; font-family: monospace; font-size: 0.75rem; }
+
+/* Animations */
+@keyframes blink { 0%,90%,100% { height: 5px; } 95% { height: 1px; } }
+@keyframes type-arms { 0% { transform: rotate(10deg) translateY(0); } 100% { transform: rotate(10deg) translateY(-3px); } }
+@keyframes twinkle { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
+@keyframes typing { 0% { opacity: 0.7; } 50% { opacity: 1; } 100% { opacity: 0.7; } }
+@keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+
+.thinking-bubble {
+    position: absolute; top: -25px; left: 50%; transform: translateX(-50%);
+    background: rgba(23,104,172,0.2); border: 1px solid rgba(23,104,172,0.3);
+    border-radius: 12px; padding: 3px 8px; font-size: 9px; color: #7ec8e3;
+    white-space: nowrap; opacity: 0; transition: opacity 0.3s;
+}
+.agent.working .thinking-bubble { opacity: 1; animation: float 2s ease infinite; }
+</style>
+</head>
+<body>
+<div class="container">
+    <div class="room">
+        <!-- Floor -->
+        <div class="floor">
+            <div class="grid-line grid-h" style="top:25%"></div>
+            <div class="grid-line grid-h" style="top:50%"></div>
+            <div class="grid-line grid-h" style="top:75%"></div>
+        </div>
+
+        <!-- Window with stars -->
+        <div class="window">
+            <div class="star" style="top:15%;left:20%;animation-delay:0s"></div>
+            <div class="star" style="top:40%;left:60%;animation-delay:1s"></div>
+            <div class="star" style="top:25%;left:80%;animation-delay:2s"></div>
+            <div class="star" style="top:65%;left:35%;animation-delay:0.5s"></div>
+            <div class="star" style="top:70%;left:75%;animation-delay:1.5s"></div>
+        </div>
+
+        <!-- Plant -->
+        <div class="plant">🪴</div>
+
+        <!-- Couch (idle area) -->
+        <div class="couch">
+            <div class="couch-back"></div>
+            <div class="couch-arm-l"></div>
+            <div class="couch-arm-r"></div>
+        </div>
+        <div class="coffee"></div>
+
+        <!-- Desk -->
+        <div class="desk">
+            <div class="desk-leg left"></div>
+            <div class="desk-leg right"></div>
+        </div>
+        <div class="monitor-base"></div>
+        <div class="monitor-stand"></div>
+        <div class="monitor">
+            <div class="monitor-screen" id="monitor-text">
+                > analyzing data...<br>
+                > building dashboard...<br>
+                > pushing to github...<br>
+                > ✅ complete
+            </div>
+        </div>
+
+        <!-- Agent -->
+        <div class="agent working" id="agent">
+            <div class="thinking-bubble" id="thought">💭 coding...</div>
+            <div class="agent-head">
+                <div class="agent-eye left blink"></div>
+                <div class="agent-eye right blink"></div>
+                <div class="agent-mouth"></div>
+            </div>
+            <div class="agent-body">
+                <div class="agent-arm left"></div>
+                <div class="agent-arm right"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Status Panel -->
+    <div class="panel">
+        <div class="panel-title">FRANCOIS 🦾</div>
+
+        <div style="margin-bottom:16px;">
+            <span class="status-dot online" id="status-dot"></span>
+            <span id="status-text" style="font-weight:600;">Online — Working</span>
+        </div>
+
+        <div class="info-card">
+            <div class="info-label">Aktuelle Aufgabe</div>
+            <div class="info-value" id="current-task">Bereit für Aufgaben</div>
+        </div>
+
+        <div class="info-card">
+            <div class="info-label">Modell</div>
+            <div class="info-value">Claude Opus 4</div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+            <div class="info-card">
+                <div class="info-label">Uptime</div>
+                <div class="info-value" id="uptime">—</div>
+            </div>
+            <div class="info-card">
+                <div class="info-label">Tasks heute</div>
+                <div class="info-value" id="tasks-count">0</div>
+            </div>
+        </div>
+
+        <div style="margin-top:20px;">
+            <div class="info-label" style="margin-bottom:8px;">Letzte Aktivitäten</div>
+            <div id="activity-feed">
+                <div class="activity-item"><span class="activity-time">--:--</span> Warte auf Updates...</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Fetch status every 3 seconds
+async function fetchStatus() {
+    try {
+        const resp = await fetch('/api/agent-status');
+        if (!resp.ok) throw new Error('no api');
+        const data = await resp.json();
+        updateUI(data);
+    } catch {
+        // Fallback: try local file
+        try {
+            const resp2 = await fetch('/agent-status.json?' + Date.now());
+            if (resp2.ok) {
+                const data = await resp2.json();
+                updateUI(data);
+            }
+        } catch {}
+    }
+}
+
+function updateUI(data) {
+    const agent = document.getElementById('agent');
+    const dot = document.getElementById('status-dot');
+    const statusText = document.getElementById('status-text');
+    const thought = document.getElementById('thought');
+    const task = document.getElementById('current-task');
+    const monitor = document.getElementById('monitor-text');
+    const uptime = document.getElementById('uptime');
+    const tasksCount = document.getElementById('tasks-count');
+    const feed = document.getElementById('activity-feed');
+
+    if (data.status === 'working') {
+        agent.className = 'agent working';
+        dot.className = 'status-dot online';
+        statusText.textContent = 'Online — Working 🔥';
+        thought.textContent = '💭 ' + (data.thought || 'coding...');
+    } else if (data.status === 'idle') {
+        agent.className = 'agent idle';
+        dot.className = 'status-dot idle';
+        statusText.textContent = 'Online — Pause ☕';
+        thought.textContent = '💭 relaxing...';
+    } else {
+        agent.className = 'agent idle';
+        dot.className = 'status-dot offline';
+        statusText.textContent = 'Offline';
+    }
+
+    if (data.currentTask) task.textContent = data.currentTask;
+    if (data.uptime) uptime.textContent = data.uptime;
+    if (data.tasksCompleted) tasksCount.textContent = data.tasksCompleted;
+    
+    if (data.monitorText) {
+        monitor.innerHTML = data.monitorText.split('\n').map(l => l + '<br>').join('');
+    }
+
+    if (data.activities && data.activities.length) {
+        feed.innerHTML = data.activities.map(a => 
+            `<div class="activity-item"><span class="activity-time">${a.time}</span> ${a.text}</div>`
+        ).join('');
+    }
+}
+
+fetchStatus();
+setInterval(fetchStatus, 3000);
+
+// Update uptime
+const startTime = Date.now();
+setInterval(() => {
+    const mins = Math.floor((Date.now() - startTime) / 60000);
+    const hrs = Math.floor(mins / 60);
+    document.getElementById('uptime').textContent = hrs > 0 ? `${hrs}h ${mins%60}m` : `${mins}m`;
+}, 60000);
+</script>
+</body>
+</html>

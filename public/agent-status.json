@@ -1,0 +1,71 @@
+{
+  "status": "idle",
+  "currentTask": "Bereit für Aufgaben",
+  "thought": "chilling...",
+  "uptime": "0h 20m",
+  "tasksCompleted": 15,
+  "lastUpdate": "2026-04-07T19:35:19.988959",
+  "monitorText": "> status: idle\n> time: 19:35\n> monitoring active",
+  "activities": [
+    {
+      "time": "19:59",
+      "text": "📦 SoccerNet Labels heruntergeladen (193+ Spiele)"
+    },
+    {
+      "time": "19:52",
+      "text": "📦 SoccerNet Download gestartet"
+    },
+    {
+      "time": "12:11",
+      "text": "🎬 Video-KI Recherche abgeschlossen"
+    },
+    {
+      "time": "12:09",
+      "text": "🎬 Video-KI Recherche gestartet"
+    },
+    {
+      "time": "11:56",
+      "text": "📊 Event-Data Recherche abgeschlossen"
+    },
+    {
+      "time": "11:54",
+      "text": "🔍 Event-Data Recherche gestartet"
+    },
+    {
+      "time": "09:55",
+      "text": "🔧 Status-Daemon als systemd Service eingerichtet"
+    },
+    {
+      "time": "09:47",
+      "text": "📱 Mobile Layout: Hochbett über Schreibtisch"
+    },
+    {
+      "time": "09:33",
+      "text": "🚀 Live Dashboard auf HuggingFace gestartet"
+    },
+    {
+      "time": "21:38",
+      "text": "✅ Fußball-KI Briefing geliefert + Cron eingerichtet"
+    },
+    {
+      "time": "21:36",
+      "text": "📝 Briefing wird geschrieben"
+    },
+    {
+      "time": "21:34",
+      "text": "🔍 Fußball-KI Briefing gestartet"
+    },
+    {
+      "time": "21:01",
+      "text": "🔨 Mission Control Animation gestartet"
+    },
+    {
+      "time": "17:45",
+      "text": "📋 Mission Control Pro installiert"
+    },
+    {
+      "time": "17:09",
+      "text": "🔍 Streamlit App verifiziert"
+    }
+  ]
+}
